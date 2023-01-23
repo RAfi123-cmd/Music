@@ -1,6 +1,9 @@
 import 'package:apk_music/pages/main_page.dart';
+import 'package:apk_music/providers/fav_provider.dart';
 import 'package:apk_music/providers/package_provider.dart';
 import 'package:apk_music/providers/page_provider.dart';
+import 'package:apk_music/providers/recent_played_provider.dart';
+import 'package:apk_music/providers/song_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,6 +21,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: ((context) => PageProvider())),
         ChangeNotifierProvider(create: ((context) => PackageProvider())),
+        ChangeNotifierProvider(create: ((context) => SongProvider())),
+        ChangeNotifierProvider(create: ((context) => FavProvider())),
+        ChangeNotifierProvider(create: ((context) => RecentProvider())),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',

@@ -2,7 +2,9 @@ import 'dart:ui';
 
 import 'package:apk_music/const.dart';
 import 'package:apk_music/pages/home_page.dart';
+import 'package:apk_music/pages/music_detail.dart';
 import 'package:apk_music/providers/page_provider.dart';
+import 'package:apk_music/providers/song_provider.dart';
 import 'package:apk_music/widgets/bgblur.dart';
 import 'package:apk_music/widgets/costum_bottom_nav.dart';
 import 'package:apk_music/widgets/current_song.dart';
@@ -21,6 +23,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     PageProvider pageProvider = Provider.of<PageProvider>(context);
+    SongProvider songProvider = Provider.of<SongProvider>(context);
     Widget body() {
       switch (pageProvider.currentPage) {
         case 0:
@@ -58,11 +61,13 @@ class _MainPageState extends State<MainPage> {
         backgroundColor: black,
         body: body(),
         bottomNavigationBar: SizedBox(
-          height: 120,
+          height: songProvider.currentSong != null ? 120 : 60,
           child: Stack(
             children: [
               Image.asset(
-                'assets/cover/Adele - Easy On Me (Official Lyric Video).jpg',
+                songProvider.currentSong != null
+                    ? 'assets/cover/${songProvider.currentSong!.image!}'
+                    : 'assets/cover/Adele - Easy On Me (Official Lyric Video).jpg',
                 fit: BoxFit.cover,
                 width: double.infinity,
               ),
@@ -71,11 +76,21 @@ class _MainPageState extends State<MainPage> {
                 opacity: 0.8,
                 color: black,
                 child: Column(
-                  children: const [
+                  children: [
                     //CurrentSong
-                    CurrentSong(),
+                    songProvider.currentSong != null
+                        ? GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const MusicDetail(),
+                                  ));
+                            },
+                            child: const CurrentSong())
+                        : Container(),
                     //costum Bottom Nav
-                    CostumBottomNAv(),
+                    const CostumBottomNAv(),
                   ],
                 ),
               ),

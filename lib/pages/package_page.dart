@@ -1,6 +1,9 @@
 import 'package:apk_music/const.dart';
 import 'package:apk_music/models/packages.dart';
+import 'package:apk_music/providers/fav_provider.dart';
 import 'package:apk_music/providers/package_provider.dart';
+import 'package:apk_music/providers/recent_played_provider.dart';
+import 'package:apk_music/providers/song_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -17,6 +20,9 @@ class _PackagePageState extends State<PackagePage> {
   @override
   Widget build(BuildContext context) {
     PackageProvider packageProvider = Provider.of<PackageProvider>(context);
+    FavProvider favProvider = Provider.of<FavProvider>(context);
+    SongProvider songProvider = Provider.of<SongProvider>(context);
+    RecentProvider recentProvider = Provider.of<RecentProvider>(context);
     return Scaffold(
         backgroundColor: black,
         appBar: AppBar(
@@ -97,13 +103,26 @@ class _PackagePageState extends State<PackagePage> {
                                 ],
                               ),
                               const Spacer(),
-                              Container(
-                                padding: const EdgeInsets.all(5),
-                                decoration: const BoxDecoration(
-                                    shape: BoxShape.circle, color: green),
-                                child: const Icon(
-                                  Icons.play_arrow_rounded,
-                                  size: 52,
+                              GestureDetector(
+                                onTap: () {
+                                  songProvider.isPlaying
+                                      ? songProvider.audioPlayer.pause()
+                                      : songProvider.currentSong =
+                                          packageProvider
+                                              .currentPackage!.songs![0];
+                                  recentProvider.setRecent(packageProvider
+                                      .currentPackage!.songs![0]);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: const BoxDecoration(
+                                      shape: BoxShape.circle, color: green),
+                                  child: Icon(
+                                    songProvider.isPlaying
+                                        ? Icons.pause
+                                        : Icons.play_arrow_rounded,
+                                    size: 52,
+                                  ),
                                 ),
                               )
                             ],
@@ -140,15 +159,37 @@ class _PackagePageState extends State<PackagePage> {
                           padding: const EdgeInsets.only(top: 10),
                           child: Row(
                             children: [
-                              Container(
-                                height: 40,
-                                width: 40,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    image: DecorationImage(
-                                        image: AssetImage(
-                                            'assets/cover/${data.image}'),
-                                        fit: BoxFit.cover)),
+                              GestureDetector(
+                                onTap: () {
+                                  songProvider.isPlaying
+                                      ? songProvider.audioPlayer.pause()
+                                      : songProvider.currentSong = data;
+                                  recentProvider.setRecent(data);
+                                },
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Container(
+                                      height: 40,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          image: DecorationImage(
+                                              image: AssetImage(
+                                                  'assets/cover/${data.image}'),
+                                              fit: BoxFit.cover)),
+                                    ),
+                                    Icon(
+                                      songProvider.isPlaying &&
+                                              songProvider.currentSong == data
+                                          ? Icons.pause
+                                          : Icons.play_arrow_rounded,
+                                      color: white,
+                                      size: 40,
+                                    )
+                                  ],
+                                ),
                               ),
                               const SizedBox(width: 10),
                               Expanded(
@@ -172,11 +213,18 @@ class _PackagePageState extends State<PackagePage> {
                                 ),
                               ),
                               IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    Icons.favorite_border_rounded,
-                                    color: white,
-                                  )),
+                                  onPressed: () {
+                                    favProvider.setFav(data);
+                                  },
+                                  icon: favProvider.isFavorite(data)
+                                      ? const Icon(
+                                          Icons.favorite,
+                                          color: green,
+                                        )
+                                      : const Icon(
+                                          Icons.favorite_border_rounded,
+                                          color: white,
+                                        )),
                               IconButton(
                                   onPressed: () {},
                                   icon: const Icon(
